@@ -289,4 +289,13 @@ const noop = (...args: Array<any>) => {};
   sprinkles.conditions.has('desktop');
   // @ts-expect-error
   sprinkles.conditions.has('missingCondition');
+
+  sprinkles.shorthands.marginY.includes('marginTop');
+  // @ts-expect-error
+  sprinkles.shorthands.paddingX.includes('marginTop');
+
+  sprinkles.shorthands.paddingX.includes('paddingLeft');
+  sprinkles.shorthands.paddingX.includes('paddingRight');
+  // @ts-expect-error
+  sprinkles.shorthands.missingShorthand.includes('paddingRight');
 };

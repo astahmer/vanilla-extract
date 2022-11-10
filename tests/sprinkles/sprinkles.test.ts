@@ -309,6 +309,7 @@ describe('sprinkles', () => {
         }
       `);
     });
+
     it('should provide a static set of conditions on the sprinkles function', () => {
       const sprinkles = createSprinkles(
         propertiesWithShorthands,
@@ -320,6 +321,30 @@ describe('sprinkles', () => {
           "mobile",
           "tablet",
           "desktop",
+        }
+      `);
+    });
+
+    it('should provide a static map of shorthands on the sprinkles function', () => {
+      const sprinkles = createSprinkles(
+        propertiesWithShorthands,
+        conditionalProperties,
+      );
+
+      expect(sprinkles.shorthands).toMatchInlineSnapshot(`
+        Object {
+          "anotherPaddingX": Array [
+            "paddingLeft",
+            "paddingRight",
+          ],
+          "paddingX": Array [
+            "paddingLeft",
+            "paddingRight",
+          ],
+          "paddingY": Array [
+            "paddingBottom",
+            "paddingTop",
+          ],
         }
       `);
     });

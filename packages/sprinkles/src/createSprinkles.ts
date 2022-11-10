@@ -69,11 +69,43 @@ type SprinkleConditions<Args extends ReadonlyArray<any>> = Args extends [
     : never
   : never;
 
+type SprinkleShorthands<Args extends ReadonlyArray<any>> = Args extends [
+  infer L,
+  ...infer R
+]
+  ? L extends SprinklesProperties
+    ? MergeUnion<
+        | {
+            [ShorthandName in keyof PickShorthandProperties<L>]: PickShorthandProperties<L>[ShorthandName] extends ShorthandProperty
+              ? PickShorthandProperties<L>[ShorthandName]['mappings']
+              : never;
+          }
+        | SprinkleShorthands<R>
+      >
+    : never
+  : never;
+
+type PickShorthandProperties<T extends SprinklesProperties> = Pick<
+  T['styles'],
+  {
+    [K in keyof T['styles']]: T['styles'][K] extends ShorthandProperty
+      ? K
+      : never;
+  }[keyof T['styles']]
+>;
+
+type MergeUnion<T> = (T extends unknown ? (k: T) => void : never) extends (
+  k: infer I,
+) => void
+  ? { [K in keyof I]: I[K] }
+  : never;
+
 export type SprinklesFn<Args extends ReadonlyArray<SprinklesProperties>> = ((
   props: SprinkleProps<Args>,
 ) => string) & {
   properties: Set<keyof SprinkleProps<Args>>;
   conditions: Set<SprinkleConditions<Args>>;
+  shorthands: SprinkleShorthands<Args>;
 };
 
 export const createSprinkles =
@@ -93,6 +125,13 @@ export const createSprinkles =
     const shorthandNames = sprinklesKeys.filter(
       (property) => 'mappings' in sprinklesStyles[property],
     );
+    const shorthandMap = shorthandNames.reduce(
+      (acc, property) => ({
+        ...acc,
+        [property]: sprinklesStyles[property].mappings,
+      }),
+      {},
+    ) as SprinkleShorthands<Args>;
 
     const sprinklesFn = (props: any) => {
       const classNames = [];
@@ -290,5 +329,6 @@ export const createSprinkles =
     return Object.assign(sprinklesFn, {
       properties: new Set(sprinklesKeys),
       conditions: sprinklesConditions,
+      shorthands: shorthandMap,
     });
   };
